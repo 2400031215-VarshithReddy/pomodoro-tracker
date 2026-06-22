@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A premium Pomodoro Timer and Habit Tracker dashboard featuring glassmorphism design, interactive statistics, custom audio notifications, and LocalStorage persistence.">
+  <title>AuraFlow // Premium Pomodoro & Habit Tracker</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@200;300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Background Accents -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <div class="app-container">
+    <!-- Header Area -->
+    <header class="main-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h1>AuraFlow</h1>
+      </div>
+      <div class="header-stats">
+        <div class="stat-pill" id="total-focus-sessions" title="Total focus sessions completed today">
+          <span class="stat-label">Focus Sessions:</span>
+          <span class="stat-value">0</span>
+        </div>
+        <div class="stat-pill" id="habit-weekly-progress" title="Weekly overall completion rate">
+          <span class="stat-label">Completion:</span>
+          <span class="stat-value">0%</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Dashboard -->
+    <main class="dashboard-grid">
+      <!-- COLUMN 1: Timer Module -->
+      <section class="dashboard-card timer-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="subtitle">Focus Engine</span>
+            <h2>Timer</h2>
+          </div>
+          <button id="settings-toggle-btn" class="icon-button" aria-label="Open Timer Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mode Selectors -->
+        <div class="timer-modes">
+          <button id="mode-work" class="mode-btn active" data-mode="work">Focus</button>
+          <button id="mode-short" class="mode-btn" data-mode="short">Short Break</button>
+          <button id="mode-long" class="mode-btn" data-mode="long">Long Break</button>
+        </div>
+
+        <!-- Timer Display Area -->
+        <div class="timer-display-container">
+          <svg class="progress-ring" width="280" height="280">
+            <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="transparent" r="120" cx="140" cy="140" />
+            <circle id="timer-progress" class="progress-ring__circle" stroke="url(#timer-gradient)" stroke-width="8" stroke-linecap="round" fill="transparent" r="120" cx="140" cy="140" />
+            <defs>
+              <linearGradient id="timer-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--accent-timer-start)" />
+                <stop offset="100%" stop-color="var(--accent-timer-end)" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="timer-numbers">
+            <span id="time-display">25:00</span>
+            <span id="timer-state-label" class="timer-state-label">GET TO WORK</span>
+          </div>
+        </div>
+
+        <!-- Timer Action Controls -->
+        <div class="timer-controls">
+          <button id="timer-toggle-sound" class="icon-button sound-btn" aria-label="Toggle Sound">
+            <svg id="sound-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            </svg>
+            <svg id="sound-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+            </svg>
+          </button>
+          
+          <button id="timer-start-pause" class="btn-primary">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="btn-icon play-icon">
+              <path d="M8 5.14v14l11-7-11-7z" />
+            </svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" class="btn-icon pause-icon hidden">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+            <span id="start-btn-text">Start Focus</span>
+          </button>
+          
+          <button id="timer-reset" class="icon-button reset-btn" aria-label="Reset Timer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Timer Configuration Slide-out Panel (Settings) -->
+        <div id="timer-settings-panel" class="settings-panel">
+          <div class="settings-panel-header">
+            <h3>Duration Settings (Min)</h3>
+            <button id="settings-close-btn" class="close-btn" aria-label="Close settings">&times;</button>
+          </div>
+          <div class="settings-fields">
+            <div class="settings-group">
+              <label for="input-work">Focus Time</label>
+              <input type="number" id="input-work" min="1" max="60" value="25">
+            </div>
+            <div class="settings-group">
+              <label for="input-short">Short Break</label>
+              <input type="number" id="input-short" min="1" max="60" value="5">
+            </div>
+            <div class="settings-group">
+              <label for="input-long">Long Break</label>
+              <input type="number" id="input-long" min="1" max="60" value="15">
+            </div>
+          </div>
+          <button id="settings-save-btn" class="btn-secondary">Save Configuration</button>
+        </div>
+      </section>
+
+      <!-- COLUMN 2: Habit Tracker Module -->
+      <section class="dashboard-card habit-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="subtitle">Routine & Habits</span>
+            <h2>Weekly Tracker</h2>
+          </div>
+          <button id="add-habit-toggle" class="btn-add-habit" aria-label="Add New Habit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Add Habit</span>
+          </button>
+        </div>
+
+        <!-- Add Habit Panel -->
+        <div id="add-habit-form-container" class="add-habit-container collapsed">
+          <form id="add-habit-form" class="add-habit-form">
+            <div class="form-row">
+              <input type="text" id="habit-name-input" placeholder="E.g., Read 10 pages, Meditate, Hydrate..." required autocomplete="off">
+            </div>
+            <div class="form-row color-selector-row">
+              <span class="row-label">Accent Theme:</span>
+              <div class="color-options">
+                <label class="color-option-lbl theme-purple">
+                  <input type="radio" name="habit-color" value="purple" checked>
+                  <span class="custom-radio"></span>
+                </label>
+                <label class="color-option-lbl theme-pink">
+                  <input type="radio" name="habit-color" value="pink">
+                  <span class="custom-radio"></span>
+                </label>
+                <label class="color-option-lbl theme-emerald">
+                  <input type="radio" name="habit-color" value="emerald">
+                  <span class="custom-radio"></span>
+                </label>
+                <label class="color-option-lbl theme-amber">
+                  <input type="radio" name="habit-color" value="amber">
+                  <span class="custom-radio"></span>
+                </label>
+                <label class="color-option-lbl theme-blue">
+                  <input type="radio" name="habit-color" value="blue">
+                  <span class="custom-radio"></span>
+                </label>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" id="add-habit-cancel" class="btn-text">Cancel</button>
+              <button type="submit" class="btn-primary-sm">Create Habit</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Weekly Header Labels (MTWTFSS relative to current week) -->
+        <div class="habits-list-header">
+          <span class="header-habit-title">Habit</span>
+          <div class="header-days">
+            <span>M</span>
+            <span>T</span>
+            <span>W</span>
+            <span>T</span>
+            <span>F</span>
+            <span>S</span>
+            <span>S</span>
+          </div>
+          <span class="header-streak">Streak</span>
+        </div>
+
+        <!-- Habits List Container -->
+        <div id="habits-list" class="habits-list">
+          <!-- Empty State (will be populated dynamically) -->
+          <div id="habits-empty-state" class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <p>No habits added yet. Start tracking your routines by adding your first habit!</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 AuraFlow. Designed for Visual Excellence & Productivity.</p>
+    </footer>
+  </div>
+
+  <!-- Audio Synthesis Container (Silent context initialization triggers) -->
+  <span id="audio-init-trigger" class="hidden"></span>
+
+  <script src="app.js"></script>
+</body>
+</html>
