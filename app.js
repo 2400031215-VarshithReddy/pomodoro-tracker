@@ -4,17 +4,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // STATE DEFINITIONS & LOCAL STORAGE
   // ==========================================
-  
+
   // Load settings from localStorage or defaults
   let settings = JSON.parse(localStorage.getItem('auraflow_settings')) || {
     work: 25,
     short: 5,
     long: 15
   };
-  
+
   // Load completed focus sessions count
   let totalFocusSessions = parseInt(localStorage.getItem('auraflow_focus_sessions')) || 0;
-  
+
   // Load habits
   let habits = JSON.parse(localStorage.getItem('auraflow_habits')) || [
     // Pre-populate with two sample habits for demonstration if empty
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Sound configuration
   let soundEnabled = localStorage.getItem('auraflow_sound_enabled') !== 'false'; // default true
-  
+
   // Timer State Variables
   let timerInterval = null;
   let currentMode = 'work'; // 'work', 'short', 'long'
@@ -49,25 +49,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // DOM ELEMENT REFERENCES
   // ==========================================
-  
+
   // Timer Display
   const timeDisplay = document.getElementById('time-display');
   const timerStateLabel = document.getElementById('timer-state-label');
   const timerProgress = document.getElementById('timer-progress');
-  
+
   // Timer Mode Controls
   const modeBtnWork = document.getElementById('mode-work');
   const modeBtnShort = document.getElementById('mode-short');
   const modeBtnLong = document.getElementById('mode-long');
   const modeBtns = [modeBtnWork, modeBtnShort, modeBtnLong];
-  
+
   // Timer Controls
   const btnStartPause = document.getElementById('timer-start-pause');
   const btnReset = document.getElementById('timer-reset');
   const btnToggleSound = document.getElementById('timer-toggle-sound');
   const soundIconOn = document.getElementById('sound-icon-on');
   const soundIconOff = document.getElementById('sound-icon-off');
-  
+
   // Settings Panel
   const btnSettingsToggle = document.getElementById('settings-toggle-btn');
   const settingsPanel = document.getElementById('timer-settings-panel');
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnAddHabitCancel = document.getElementById('add-habit-cancel');
   const habitsList = document.getElementById('habits-list');
   const habitsEmptyState = document.getElementById('habits-empty-state');
-  
+
   // Stats Counters
   const valTotalFocusSessions = document.querySelector('#total-focus-sessions .stat-value');
   const valHabitWeeklyProgress = document.querySelector('#habit-weekly-progress .stat-value');
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // AUDIO SYNTHESIS ENGINE (Web Audio API)
   // ==========================================
-  
+
   function initAudioContext() {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -110,11 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const gain = audioCtx.createGain();
       osc.type = 'sine';
       osc.frequency.value = freq;
-      
+
       gain.gain.setValueAtTime(0, audioCtx.currentTime + startTime);
       gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + startTime + 0.03);
       gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + startTime + duration);
-      
+
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start(audioCtx.currentTime + startTime);
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function triggerChime(isStart) {
     initAudioContext();
     if (!soundEnabled) return;
-    
+
     if (isStart) {
       // Warm upward arpeggio (C Major) for starting focus
       playTone(523.25, 0.12, 0);     // C5
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     soundEnabled = !soundEnabled;
     localStorage.setItem('auraflow_sound_enabled', soundEnabled);
     updateSoundUI();
-    
+
     if (soundEnabled) {
       // Play a quick chime to verify
       playTone(659.25, 0.15, 0);
@@ -170,11 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // UI TOAST FEEDBACK HELPER
   // ==========================================
-  
+
   function showToast(message) {
     const existing = document.querySelector('.toast-msg');
     if (existing) existing.remove();
-    
+
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
     toast.innerHTML = `
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <span>${message}</span>
     `;
     document.body.appendChild(toast);
-    
+
     // Auto-remove toast after animation completes
     setTimeout(() => {
       if (toast && toast.parentNode) toast.remove();
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const radius = timerProgress.r.baseVal.value;
   const circumference = 2 * Math.PI * radius; // Approx 753.98
   timerProgress.style.strokeDasharray = `${circumference} ${circumference}`;
-  
+
   function setProgressPercent(percent) {
     const offset = circumference - (percent / 100) * circumference;
     timerProgress.style.strokeDashoffset = offset;
@@ -223,13 +223,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const minutesStr = String(minutes).padStart(2, '0');
     const secondsStr = String(seconds).padStart(2, '0');
     const timeStr = `${minutesStr}:${secondsStr}`;
-    
+
     timeDisplay.textContent = timeStr;
-    
+
     // Synchronize page document title
     const modeLabel = currentMode === 'work' ? 'Focus' : 'Break';
     document.title = `[${timeStr}] AuraFlow // ${modeLabel}`;
-    
+
     // Update SVG circle
     const totalSeconds = getTimerTotalSeconds();
     const percent = totalSeconds > 0 ? (timeLeft / totalSeconds) * 100 : 0;
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateModeUI() {
     modeBtns.forEach(btn => btn.classList.remove('active'));
     document.getElementById(`mode-${currentMode}`).classList.add('active');
-    
+
     // Update state text
     if (currentMode === 'work') {
       timerStateLabel.textContent = "GET TO WORK";
@@ -270,17 +270,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function startTimer() {
     initAudioContext();
     if (isTimerRunning) return;
-    
+
     isTimerRunning = true;
-    
+
     // Adjust button icons
     btnStartPause.querySelector('.play-icon').classList.add('hidden');
     btnStartPause.querySelector('.pause-icon').classList.remove('hidden');
     document.getElementById('start-btn-text').textContent = "Pause Session";
-    
+
     // Trigger sound
     triggerChime(true);
-    
+
     timerInterval = setInterval(() => {
       if (timeLeft > 0) {
         timeLeft--;
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isTimerRunning = false;
     clearInterval(timerInterval);
     timerInterval = null;
-    
+
     btnStartPause.querySelector('.play-icon').classList.remove('hidden');
     btnStartPause.querySelector('.pause-icon').classList.add('hidden');
     document.getElementById('start-btn-text').textContent = currentMode === 'work' ? "Start Focus" : "Start Break";
@@ -305,14 +305,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleTimerCompletion() {
     stopTimer();
     triggerChime(false);
-    
+
     if (currentMode === 'work') {
       totalFocusSessions++;
       localStorage.setItem('auraflow_focus_sessions', totalFocusSessions);
       valTotalFocusSessions.textContent = totalFocusSessions;
-      
+
       showToast("Splendid! Focus session completed!");
-      
+
       // Auto cycle to short break
       setMode('short');
     } else {
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // TIMER SETTINGS ACTIONS
   // ==========================================
-  
+
   btnSettingsToggle.addEventListener('click', () => {
     initAudioContext();
     settingsPanel.classList.toggle('open');
@@ -364,10 +364,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const workVal = Math.max(1, Math.min(60, parseInt(inputWork.value) || 25));
     const shortVal = Math.max(1, Math.min(60, parseInt(inputShort.value) || 5));
     const longVal = Math.max(1, Math.min(60, parseInt(inputLong.value) || 15));
-    
+
     settings = { work: workVal, short: shortVal, long: longVal };
     localStorage.setItem('auraflow_settings', JSON.stringify(settings));
-    
+
     settingsPanel.classList.remove('open');
     setMode(currentMode); // Update currently active state values
     showToast("Timer configuration saved");
@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Monday offset
     const diff = now.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(now.setDate(diff));
-    
+
     const weekDates = [];
     for (let i = 0; i < 7; i++) {
       const date = new Date(monday);
@@ -410,20 +410,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let streak = 0;
     const now = new Date();
     let checkDate = new Date(now);
-    
+
     const todayStr = formatDate(checkDate);
-    
+
     let yesterday = new Date(now);
     yesterday.setDate(now.getDate() - 1);
     const yesterdayStr = formatDate(yesterday);
-    
+
     const startFromToday = history[todayStr] === true;
     const startFromYesterday = history[yesterdayStr] === true;
-    
+
     if (!startFromToday && !startFromYesterday) {
       return 0;
     }
-    
+
     let current = startFromToday ? checkDate : yesterday;
     while (true) {
       const dateStr = formatDate(current);
@@ -443,11 +443,11 @@ document.addEventListener('DOMContentLoaded', () => {
       valHabitWeeklyProgress.textContent = "0%";
       return;
     }
-    
+
     const weekDates = getWeekDates();
     let totalPossible = habits.length * 7;
     let checkedCount = 0;
-    
+
     habits.forEach(habit => {
       weekDates.forEach(dateStr => {
         if (habit.history[dateStr] === true) {
@@ -455,17 +455,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
-    
+
     const rate = Math.round((checkedCount / totalPossible) * 100);
     valHabitWeeklyProgress.textContent = `${rate}%`;
   }
 
   // Toggle habit tracker check status
-  window.toggleHabitDay = function(habitId, dateStr) {
+  window.toggleHabitDay = function (habitId, dateStr) {
     initAudioContext();
     const habit = habits.find(h => h.id === habitId);
     if (!habit) return;
-    
+
     // Toggle history
     if (habit.history[dateStr] === true) {
       delete habit.history[dateStr];
@@ -473,23 +473,23 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       habit.history[dateStr] = true;
       // High bright sound feedback on complete
-      playTone(880, 0.1, 0); 
+      playTone(880, 0.1, 0);
       playTone(1100, 0.15, 0.05);
     }
-    
+
     // Save state
     localStorage.setItem('auraflow_habits', JSON.stringify(habits));
-    
+
     // Redraw and recalculate
     renderHabits();
     updateCompletionStats();
   };
 
   // Delete habit
-  window.deleteHabit = function(habitId) {
+  window.deleteHabit = function (habitId) {
     habits = habits.filter(h => h.id !== habitId);
     localStorage.setItem('auraflow_habits', JSON.stringify(habits));
-    
+
     renderHabits();
     updateCompletionStats();
     showToast("Habit deleted");
@@ -503,13 +503,13 @@ document.addEventListener('DOMContentLoaded', () => {
       updateCompletionStats();
       return;
     }
-    
+
     habitsEmptyState.classList.add('hidden');
-    
+
     // Get existing elements
     const habitItems = habitsList.querySelectorAll('.habit-item');
     const existingIds = new Set(habits.map(h => h.id));
-    
+
     // Clean deleted cards
     habitItems.forEach(item => {
       const id = item.getAttribute('data-id');
@@ -519,11 +519,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const weekDates = getWeekDates();
-    
+
     habits.forEach(habit => {
       const streak = calculateStreak(habit.history);
       let existingCard = habitsList.querySelector(`.habit-item[data-id="${habit.id}"]`);
-      
+
       // Determine day-by-day checked classes
       let daysHtml = '';
       weekDates.forEach(dateStr => {
@@ -589,13 +589,13 @@ document.addEventListener('DOMContentLoaded', () => {
   addHabitForm.addEventListener('submit', (e) => {
     e.preventDefault();
     initAudioContext();
-    
+
     const name = habitNameInput.value.trim();
     if (!name) return;
-    
+
     const colorOpt = document.querySelector('input[name="habit-color"]:checked');
     const color = colorOpt ? colorOpt.value : 'purple';
-    
+
     const newHabit = {
       id: 'habit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
       name: name,
@@ -603,20 +603,20 @@ document.addEventListener('DOMContentLoaded', () => {
       createdAt: new Date().toISOString(),
       history: {}
     };
-    
+
     habits.unshift(newHabit);
     localStorage.setItem('auraflow_habits', JSON.stringify(habits));
-    
+
     // Reset and close
     addHabitForm.reset();
     addHabitFormContainer.classList.add('collapsed');
-    
+
     // Redraw habits
     renderHabits();
     updateCompletionStats();
-    
+
     showToast(`Habit "${name}" created!`);
-    
+
     // Play celebratory tone
     playTone(523.25, 0.1, 0);
     playTone(659.25, 0.1, 0.05);
@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // DRAWER INTERACTION CLOSURES (Click Outside / Scroll Close)
   // ==========================================
-  
+
   // Close drawers when clicking outside their card areas
   document.addEventListener('click', (e) => {
     // Settings panel click-outside check
@@ -658,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // INITIAL RUN STATE INVOCATIONS
   // ==========================================
-  
+
   updateSoundUI();
   setMode('work');
   renderHabits();
